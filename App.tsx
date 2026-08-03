@@ -24,11 +24,9 @@ function App() {
           <Text style={styles.subtitle}>
             A playground for audio, pitch detection, and mobile engineering.
           </Text>
-          {/* <View style={styles.button}> */}
           <Pressable onPress={experimentButton} style={styles.button}>
             <Text style={styles.buttonText}>Let the experiment begin!</Text>
           </Pressable>
-          {/* </View> */}
         </View>
       </SafeAreaView>
     </>
