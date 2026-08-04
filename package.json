@@ -45,6 +45,6 @@
     "node": ">= 22.11.0"
   },
   "lint-staged": {
-  "*.{js,jsx,ts,tsx}": "eslint --fix"
-}
+    "*.{js,jsx,ts,tsx}": "eslint --fix"
+  }
 }
