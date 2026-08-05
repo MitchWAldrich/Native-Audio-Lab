@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 import { colours, spacing, typography } from '../../theme';
 
-export const homeScreenStyles = StyleSheet.create({
+export const audioRecorderScreenStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colours.background,
@@ -39,6 +39,10 @@ export const homeScreenStyles = StyleSheet.create({
     elevation: 3,
     marginTop: spacing.xl,
   },
+
+  buttonDisabled: {
+  opacity: 0.5,
+},
 
   buttonPressed: {
     opacity: 0.9,

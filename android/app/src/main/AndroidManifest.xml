@@ -2,6 +2,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Foreground service and microphone permissions for background usage -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+
+  <!-- General permission for microphone access -->
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -23,5 +31,10 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
+      <service
+            android:name="com.swmansion.audioapi.system.CentralizedForegroundService"
+            android:foregroundServiceType="microphone"
+            android:stopWithTask="true" />
     </application>
 </manifest>
