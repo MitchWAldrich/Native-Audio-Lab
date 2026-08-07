@@ -30,6 +30,7 @@ const LiveInputScreen = () => {
 
   const [isRecording, setIsRecording] = useState(false);
   const [rms, setRms] = useState(0);
+  const [zcr, setZcr] = useState(0);
 
   const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -51,42 +52,66 @@ const LiveInputScreen = () => {
 
   const gainNodeRef = useRef<GainNode | null>(null);
 
-  const calculateRMS = (channel: Float32Array): number => {
+  const extractFromBuffer = (
+    channel: Float32Array,
+  ): { rmsValue: number; zcrValue: number } => {
     'worklet';
 
     let sumOfSquares = 0;
+    let crossings = 0;
+    let previousSample: number | undefined;
 
     for (const sample of channel) {
       sumOfSquares += sample * sample;
+
+      if (
+        previousSample !== undefined &&
+        ((previousSample >= 0 && sample < 0) ||
+          (previousSample < 0 && sample >= 0))
+      ) {
+        crossings++;
+      }
+
+      previousSample = sample;
     }
 
-    return channel.length > 0 ? Math.sqrt(sumOfSquares / channel.length) : 0;
+    const calculatedRms =
+      channel.length > 0 ? Math.sqrt(sumOfSquares / channel.length) : 0;
+
+    const zcrValue = channel.length > 1 ? crossings / (channel.length - 1) : 0;
+
+    return { rmsValue: calculatedRms, zcrValue };
   };
 
-  const displayWorkletValue = (rmsValue: number) => {
+  const displayWorkletValues = (rmsValue: number, zcrValue: number) => {
     setRms(rmsValue);
+    setZcr(zcrValue);
+  };
+
+  const worklet = (audioData: Array<Float32Array>) => {
+    'worklet';
+
+    const channel = audioData[0];
+
+    if (!channel) {
+      return;
+    }
+
+    const extractedValues = extractFromBuffer(channel);
+
+    scheduleOnRN(
+      displayWorkletValues,
+      extractedValues.rmsValue,
+      extractedValues.zcrValue,
+    );
+
+    requestAnimationFrame(() => {});
   };
 
   const handleLiveInput = async () => {
     if (isRecording) {
       return;
     }
-
-    const worklet = (audioData: Array<Float32Array>) => {
-      'worklet';
-
-      const channel = audioData[0];
-
-      if (!channel) {
-        return;
-      }
-
-      const calculatedRms = calculateRMS(channel);
-
-      scheduleOnRN(displayWorkletValue, calculatedRms);
-
-      requestAnimationFrame(() => {});
-    };
 
     if (!adapterNodeRef.current) {
       adapterNodeRef.current = audioContext.createRecorderAdapter();
@@ -225,6 +250,7 @@ const LiveInputScreen = () => {
             <Text style={styles.buttonText}>STOP</Text>
           </Pressable>
           <Text style={styles.subtitle}>RMS: {rms.toFixed(4)}</Text>
+          <Text style={styles.subtitle}>ZCR: {zcr.toFixed(3)}</Text>
         </View>
       </SafeAreaView>
     </>
