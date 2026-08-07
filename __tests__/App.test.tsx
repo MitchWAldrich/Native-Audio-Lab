@@ -1,3 +1,7 @@
+jest.mock('react-native-worklets', () =>
+  require('react-native-worklets/src/mock'),
+);
+
 jest.mock('react-native-audio-api', () => ({
   AudioManager: {
     setAudioSessionOptions: jest.fn(),
